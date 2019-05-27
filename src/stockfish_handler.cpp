@@ -81,12 +81,12 @@ std::string Stockfish::getBoard() {
   return sendUciCmd("d", "Checkers");
 }
 std::string Stockfish::getBestMove() {
-  std::string output = sendUciCmd("go", "ponder");
+  std::string output = sendUciCmd("go", "bestmove");
   std::stringstream ss(output);
   std::string current;
   std::string bestmove;
   while(std::getline(ss, current, '\n')) {
-    if (strstr(current.c_str(), "ponder")) {
+    if (strstr(current.c_str(), "bestmove")) {
       std::stringstream line_ss(current);
       std::getline(line_ss, bestmove, ' ');
       std::getline(line_ss, bestmove, ' ');

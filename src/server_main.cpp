@@ -7,8 +7,6 @@ int main()
   Stockfish engine;
   engine.init();
   engine.initUci();
-  cout << engine.getBoard();
-  cout << engine.getBestMove() << endl;
 
   StockfishServer server(&engine);
   server.Start();
@@ -19,8 +17,4 @@ int main()
   }
 
   server.Stop ();
-
-  std::string msg = "uci\n";
-  std::string input;
-  std::string delimiter = "uciok";
 }

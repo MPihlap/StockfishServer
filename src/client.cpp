@@ -13,9 +13,6 @@ using namespace std;
 using namespace RakNet;
 
 StockfishClient::~StockfishClient () {
-	// We try to disconnect. Maybe the programmer forgot to?
-	// Note, that the if-clause in Disconnect() makes sure that
-	// we do not delete the library interface twice
 	disconnect ();
 }
 
@@ -198,7 +195,7 @@ void StockfishClient::processResponse(Packet* packet) {
 	}
     char buffer[32];
     sc.DecodeString(buffer, 32, &message);
-	cout << "Received best move: " << buffer << endl;   
+	cout << endl << "Received best move: " << buffer << endl << endl;   
 	m_state = StockfishClientState::READY_TO_SEND;
 }
 void StockfishClient::sendRequest () {

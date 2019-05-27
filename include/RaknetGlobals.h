@@ -1,4 +1,4 @@
-// This header contains common constants and structures for the Guessing game
+// This header contains common constants and structures for the Stockfish
 // client and server. This sets the protocol understood by both parties.
 #ifndef RAKNET_GLOBALS_HEADER
 #define RAKNET_GLOBALS_HEADER
