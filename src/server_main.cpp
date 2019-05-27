@@ -7,6 +7,8 @@ int main()
   Stockfish engine;
   engine.init();
   engine.initUci();
+  cout << engine.getBoard();
+  cout << engine.getBestMove() << endl;
 
   StockfishServer server(&engine);
   server.Start();

@@ -64,6 +64,8 @@ class StockfishClient {
 
         // Process response 
         void processResponse(Packet* packet);
+
+        void showBoard(Packet* packet);
     
 	public:
 

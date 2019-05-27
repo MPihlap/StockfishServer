@@ -20,24 +20,34 @@
 
 #define PIPE_READ 0
 #define PIPE_WRITE 1
-#define INPUT_BUF_SIZE 1024
+#define INPUT_BUF_SIZE 8192
 
 class Stockfish
 {
 private:
-  int aStdinPipe[2];
-  int aStdoutPipe[2];
+  int aStdinPipe[2]; // stdin pipe of child process
+  int aStdoutPipe[2];// stdout pipe of child process
   int nChild;
-  char buffer1[INPUT_BUF_SIZE*2], buffer2[INPUT_BUF_SIZE*2]; // *2 to allow for concatenate
+  char buffer1[INPUT_BUF_SIZE*2]; // *2 to allow for concatenate
   char* input_buffer = buffer1;
-  char* prev_input_buffer = buffer2;
   int nResult;
 public:
   void init();
   Stockfish() {}
-  ~Stockfish() {}
+  ~Stockfish();
+  // Initializes the uci interface
   void initUci();
+  // Send a command via Uci interface, delimiter lets us know when to stop reading.
   std::string sendUciCmd(std::string input, std::string delimiter);
+  // Set board state
+  bool setPosition(std::string fen);
+  // Get board representation as string
+  std::string getBoard();
+  // Calculate best move based on board state
+  std::string getBestMove();
+
+  // Check if fen is valid, (source code taken from stockfish)
+  bool is_valid_fen(const std::string &fen);
 
 };
 #endif

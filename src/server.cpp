@@ -111,7 +111,11 @@ bool StockfishServer::NextFrame () {
 
 			case PACKET_BEST_MOVE_REQUEST:
 				cout << "Received request from " <<  packet->systemAddress.ToString () <<  "." << endl;
-				ProcessRequest (packet);
+				ProcessBestMoveRequest (packet);
+				break;
+			case PACKET_DISPLAY_BOARD:
+				cout << "Received request from " <<  packet->systemAddress.ToString () <<  "." << endl;
+				sendBoard(packet);
 				break;
 
 			default:
@@ -127,7 +131,14 @@ bool StockfishServer::NextFrame () {
 
 	return true;
 }
-
+void StockfishServer::sendBoard(Packet* packet) {
+    assert(packet);
+    BitStream message;
+    unsigned char identifier = PACKET_DISPLAY_BOARD;
+    message.Write(identifier);
+    sc.EncodeString(stockfish_->getBoard().c_str(), 1024, &message);
+    m_peerinterface->Send(&message, HIGH_PRIORITY, RELIABLE_ORDERED, 1, packet->systemAddress, false);
+}
 void StockfishServer::ProcessIntroduction (Packet* packet) {
 	assert (packet);
 	BitStream intro (packet->data, packet->length, false);
@@ -154,7 +165,7 @@ void StockfishServer::ProcessIntroduction (Packet* packet) {
 	SendMessageReady (packet->systemAddress);
 }
 
-void StockfishServer::ProcessRequest (Packet* packet) {
+void StockfishServer::ProcessBestMoveRequest (Packet* packet) {
 	assert (packet);
 
 	BitStream request (packet->data, packet->length, false);
@@ -171,11 +182,21 @@ void StockfishServer::ProcessRequest (Packet* packet) {
 	char buffer[100];
     sc.DecodeString(buffer, 100, &request);
     cout << "Received fen: " << buffer << endl;
+    std::string bestmove;
+    if (!stockfish_->is_valid_fen(buffer)) {
+        cout << "Faulty fen provided!" << endl;
+        bestmove = "Faulty fen provided!";
+    }
+    else {
+        cout << "Fen is legal." << endl;
+        stockfish_->setPosition(buffer);
+        bestmove = stockfish_->getBestMove();
+    }
 
-	// GET BEST MOVE FROM POINTER AND SEND IT
+    SendBestMove(packet->systemAddress, bestmove);
+    // m_peerinterface->CloseConnection (packet->systemAddress, true);
+    
 
-    SendBestMove(packet->systemAddress, "e2e4");
-    m_peerinterface->CloseConnection (packet->systemAddress, true);
     // if (result == Guess::CORRECT)
     //     m_peerinterface->CloseConnection (packet->systemAddress, true);
 	// } else {

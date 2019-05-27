@@ -5,6 +5,7 @@
 #include <cassert>
 #include <string>
 #include <cmath>
+#include <cstring>
 using namespace std;
 
 // Our game protocol and constants
@@ -154,6 +155,10 @@ bool StockfishClient::nextFrame () {
 				cout << "Received \"packet_best_move_response\" message" << endl;
 				processResponse(packet);
 				break;
+			case PACKET_DISPLAY_BOARD:
+				cout << "Received \"packet_display_borad\" message" << endl;
+				showBoard(packet);
+				break;
 
 			default:
 				cout << "Received unknown packet " << (unsigned short)packetidentifier << " from " <<  packet->systemAddress.ToString () <<  "." << endl;
@@ -167,6 +172,17 @@ bool StockfishClient::nextFrame () {
 	}
 
 	return true;
+}
+void StockfishClient::showBoard(Packet* packet) {
+    assert(packet);
+
+    BitStream message (packet->data, packet->length, false);
+    unsigned char mt;
+	message.Read (mt);
+    char buffer[1024];
+    sc.DecodeString(buffer, 1024, &message);
+	cout << buffer << endl;   
+	m_state = StockfishClientState::READY_TO_SEND;
 }
 void StockfishClient::processResponse(Packet* packet) {
     assert (packet);
@@ -183,18 +199,29 @@ void StockfishClient::processResponse(Packet* packet) {
     char buffer[32];
     sc.DecodeString(buffer, 32, &message);
 	cout << "Received best move: " << buffer << endl;   
-	m_state = StockfishClientState::FINISHING;
+	m_state = StockfishClientState::READY_TO_SEND;
 }
 void StockfishClient::sendRequest () {
-
-	cout << "Insert your game state as FEN string" << endl;
+    unsigned char intro;
+    BitStream message;
+	cout << "Insert your game state as FEN string (q to quit)" << endl;
 	char buffer[100];	
 	cin.getline(buffer, 100);
 
-	BitStream message;
-	unsigned char intro = PACKET_BEST_MOVE_REQUEST;
-	message.Write(intro);
-    sc.EncodeString(buffer, 100, &message);
+    if (strcmp(buffer, "q") == 0) {
+        cout << "Quitting now." << endl;
+        m_state = StockfishClientState::FINISHING;
+        return;
+    }
+    else if (strcmp(buffer, "d") == 0) {
+        intro = PACKET_DISPLAY_BOARD;
+        message.Write(intro);
+    }
+    else {
+        intro = PACKET_BEST_MOVE_REQUEST;
+        message.Write(intro);
+        sc.EncodeString(buffer, 100, &message);
+    }
 	m_peerinterface->Send(&message, HIGH_PRIORITY, RELIABLE_ORDERED, 1, m_serverAddress, false);
 	m_state = StockfishClientState::WAITING_FOR_FEN_RESPONSE;
 }

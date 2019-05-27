@@ -38,13 +38,15 @@ class StockfishServer {
 		void ProcessIntroduction(Packet* packet);
 		
 		// Process a guess message
-		void ProcessRequest(Packet* packet);
+		void ProcessBestMoveRequest(Packet* packet);
 
 		// Send a message to the client that he/she can start playing
 		void SendMessageReady (SystemAddress recipient);
 		
 		// Send a response to a guess
 		void SendBestMove(  SystemAddress recipient, std::string best_move);
+
+        void sendBoard(Packet* packet);
 
 	public:
 		
