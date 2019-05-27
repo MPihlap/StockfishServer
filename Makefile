@@ -33,7 +33,7 @@ LFLAGS += -L$(RAKNETDIR)/Lib/LibStatic -lRakNetLibStatic $(EXTRALIBS)
 
 # The object for the apps
 CLIENTOBJS = obj/client.o 
-SERVEROBJS = obj/server.o 
+SERVEROBJS = obj/server.o obj/server_main.o obj/stockfish_handler.o
 # The names of the apps
 CLIENTAPP = bin/StockfishClient
 SERVERAPP = bin/StockfishServer
@@ -49,26 +49,27 @@ SERVERAPP = bin/StockfishServer
 ################################
 
 # The object for the testing app
-TESTOBJS = obj/uci_test.o
-
-# The name of the testing app
-PROGRAM = bin/uci_test
+STOCKFISH_OBJ = obj/stockfish_handler.o
 
 # This is the first target. It will be built when you run 'make' or 'make build'
-build: $(PROGRAM)
+build: $(CLIENTAPP) $(SERVERAPP)
 
 # Rule for linking the test app with our library
-$(PROGRAM): $(TESTOBJS) $(CLIENTOBJS) $(SERVEROBJS)
-	$(CXX) $(TESTOBJS) -o $(PROGRAM) $(LFLAGS) 
+$(CLIENTAPP): $(CLIENTOBJS)
+	$(CXX) $(CLIENTOBJS) -o $(CLIENTAPP) $(LFLAGS)
+$(SERVERAPP): $(SERVEROBJS)
+	$(CXX) $(SERVEROBJS) -o $(SERVERAPP) $(LFLAGS)
 
 # Compile each source file of the library
-obj/uci_test.o: src/uci_test.cpp
+obj/stockfish_handler.o: src/stockfish_handler.cpp
 	$(CXX) $(APP_CXXFLAGS) -c $? -o $@
 obj/client.o: src/client.cpp
 	$(CXX) $(APP_CXXFLAGS) -c $? -o $@
 obj/server.o: src/server.cpp
 	$(CXX) $(APP_CXXFLAGS) -c $? -o $@
+obj/server_main.o: src/server_main.cpp
+	$(CXX) $(APP_CXXFLAGS) -c $? -o $@
 
 clean:
-	rm -f $(TESTOBJS)
-	rm -f $(PROGRAM)
+	rm -f obj/*
+	rm -f bin/*

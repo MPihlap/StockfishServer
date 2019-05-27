@@ -1,11 +1,6 @@
 #ifndef STOCKFISH_SERVER_H
 #define STOCKFISH_SERVER_H
 
-#ifndef _STD_STRING_COMPRESSOR
-#define _STD_STRING_COMPRESSOR
-#endif
-
-
 // Standard library
 #include <map>
 #include <random>
@@ -22,11 +17,13 @@ using RakNet::SystemAddress;
 using RakNet::Packet;
 using RakNet::StringCompressor;
 
+#include "StockfishHandler.h"
 class StockfishServer {
 
 	private:
 		StringCompressor sc;
         
+        Stockfish* stockfish_;
 	
 		// The network library interface
 		RakPeerInterface* m_peerinterface = 0;
@@ -52,6 +49,7 @@ class StockfishServer {
 	public:
 		
 		// The destructor stops the server if it is not stopped already
+        StockfishServer(Stockfish* stockfish);
 		~StockfishServer ();
 		
 		// Starts the server

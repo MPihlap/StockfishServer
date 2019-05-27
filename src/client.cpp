@@ -168,7 +168,7 @@ bool StockfishClient::nextFrame () {
 
 	return true;
 }
-void StockfishClient::processResponse(packet) {
+void StockfishClient::processResponse(Packet* packet) {
     assert (packet);
 
 	BitStream message (packet->data, packet->length, false);
@@ -183,7 +183,7 @@ void StockfishClient::processResponse(packet) {
     char buffer[32];
     sc.DecodeString(buffer, 32, &message);
 	cout << "Received best move: " << buffer << endl;   
-	m_state = StockfishClientState::READY_TO_SEND;
+	m_state = StockfishClientState::FINISHING;
 }
 void StockfishClient::sendRequest () {
 
@@ -259,4 +259,30 @@ bool StockfishClient::run () {
 	m_state = StockfishClientState::STARTING;
  
     return true;
+}
+
+int main(int argc, char* argv[]) {
+	if (argc < 2) {
+		cout << "Required: server address as parameter" << endl;
+		return EXIT_FAILURE;
+	}
+
+	// * If the game is over, ask the user if it wants to play again
+	
+	while (1) {
+		StockfishClient client;
+		if (!client.connect (string (argv[1]), SERVER_PORT)) {
+			return EXIT_FAILURE;
+		}
+        char buffer[5];
+		if (client.run()) {
+			cout << "Play again? (y/n))" << endl;
+			cin.getline(buffer, 5);
+            if (strcmp(buffer, "n") == 0) {
+                break;
+            }
+		}
+		else 
+			return EXIT_FAILURE;
+	}
 }

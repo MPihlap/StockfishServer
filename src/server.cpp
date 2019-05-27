@@ -170,6 +170,7 @@ void StockfishServer::ProcessRequest (Packet* packet) {
 
 	char buffer[100];
     sc.DecodeString(buffer, 100, &request);
+    cout << "Received fen: " << buffer << endl;
 
 	// GET BEST MOVE FROM POINTER AND SEND IT
 
@@ -210,4 +211,7 @@ void StockfishServer::Stop () {
 		RakPeerInterface::DestroyInstance(m_peerinterface);
 		m_peerinterface = 0;
 	}
+}
+StockfishServer::StockfishServer(Stockfish* stockfish) {
+    stockfish_ = stockfish;
 }
